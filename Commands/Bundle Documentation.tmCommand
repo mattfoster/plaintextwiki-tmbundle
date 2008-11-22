@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>beforeRunningCommand</key>
+	<string>nop</string>
+	<key>command</key>
+	<string>#!/usr/bin/env bash
+
+. "$TM_SUPPORT_PATH/lib/webpreview.sh"
+html_header "Plain Text Wiki Bundle Help" "Plain text Wiki"
+
+cat "$TM_BUNDLE_PATH/README.md" | "$TM_SUPPORT_PATH/lib/markdown_to_help.rb"
+
+html_footer
+</string>
+	<key>fallbackInput</key>
+	<string>none</string>
+	<key>input</key>
+	<string>none</string>
+	<key>keyEquivalent</key>
+	<string>^h</string>
+	<key>name</key>
+	<string>Bundle Documentation</string>
+	<key>output</key>
+	<string>showAsHTML</string>
+	<key>scope</key>
+	<string>text.html.markdown.wiki</string>
+	<key>uuid</key>
+	<string>A7F38A8C-7833-4A69-982A-8C76F5522F55</string>
+</dict>
+</plist>

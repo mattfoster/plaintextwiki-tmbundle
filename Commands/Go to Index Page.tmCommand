@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>beforeRunningCommand</key>
+	<string>saveActiveFile</string>
+	<key>command</key>
+	<string>#!/usr/bin/env ruby
+require "#{ENV['TM_BUNDLE_SUPPORT']}/lib/wiki.rb"
+PlainTextWiki.new(ENV['TM_DIRECTORY']).go_to_index_page
+</string>
+	<key>input</key>
+	<string>none</string>
+	<key>keyEquivalent</key>
+	<string>^I</string>
+	<key>name</key>
+	<string>Go to Index Page</string>
+	<key>output</key>
+	<string>discard</string>
+	<key>scope</key>
+	<string>text.html.markdown.wiki</string>
+	<key>uuid</key>
+	<string>C172A2DF-1A4F-4D98-9649-8072AE32A04A</string>
+</dict>
+</plist>
