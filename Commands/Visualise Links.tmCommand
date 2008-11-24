@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>beforeRunningCommand</key>
+	<string>nop</string>
+	<key>command</key>
+	<string>#!/usr/bin/env python
+
+import glob, os, re, sys
+
+def run_file_in_nodebox(file='nodebox.py'):
+    """use applescript to run a file in nodebox
+    
+    Note: needs to havea .py ext for nodebox to run it."""
+
+    cmd = """osascript &lt;&lt;-EOF 
+    tell application "Nodebox" to open POSIX file "%s"  
+    delay 1  
+    tell application "Nodebox" to activate  
+    tell application "System Events" to tell process "Nodebox"  
+
+    keystroke "r" using command down  
+    end tell
+    EOF""" % outfile
+
+    os.system(cmd)
+
+def print_link_lines(lines, out=None):
+    """Print wiki links as nodebox graph edges"""
+
+    delim = re.compile("\[\[(.+?)\]\]")
+    camel = re.compile("([A-Z][a-z]+([A-Z][a-z]*)+)")
+
+    for line in lines:
+        dlm = delim.search(line)
+        if dlm is not None:
+            out.write('g.add_edge("%s", "%s")\n' % (name, dlm.group(1)))
+        else:
+            cam = camel.search(line)
+            if cam is not None:
+                out.write('g.add_edge("%s", "%s")\n' % (name, cam.group(0)))
+
+header = """
+# Import the library
+try:
+    # This is the statement you normally use.
+    graph = ximport("graph")
+except ImportError:
+    # But since these examples are "inside" the library
+    # we may need to try something different when
+    # the library is not located in /Application Support
+    graph = ximport("__init__")
+    reload(graph)
+
+size(1024, 768)
+
+g = graph.create(iterations=1000, distance=1.5)
+"""
+
+footer = """
+# Calculate a good layout.
+g.solve()
+
+# Apply default rules for node colors and size,
+# for example, important nodes become blue.
+g.styles.apply()
+
+# Draw the graph, indicating the direction of each relation
+# and the two nodes that get the most traffic.
+g.draw(directed=True)
+"""
+
+wiki_dir = os.environ.get('TM_PROJECT_DIRECTORY')
+outfile = os.path.join(wiki_dir, 'nodebox.py')
+
+try:
+    out = open(outfile, 'w')
+
+    out.write(header)
+
+    if wiki_dir:
+        files = glob.glob('*.txt')
+    else:
+        files = (os.path.basename(os.environ.get('TM_FILENAME')))
+
+    for file in files:
+        name = os.path.splitext(file)[0]
+
+        try:
+            f = open(file, 'r')
+            lines = f.readlines()
+        finally:
+            f.close()
+        
+        print_link_lines(lines, out)
+
+            
+    out.write(footer)
+finally:
+    out.close()
+    
+run_file_in_nodebox(outfile)</string>
+	<key>input</key>
+	<string>selection</string>
+	<key>keyEquivalent</key>
+	<string>^v</string>
+	<key>name</key>
+	<string>Visualise Links</string>
+	<key>output</key>
+	<string>showAsTooltip</string>
+	<key>scope</key>
+	<string>text.html.markdown.wiki</string>
+	<key>uuid</key>
+	<string>ADE8F297-34DB-454F-ADB1-25B91FAA3BDE</string>
+</dict>
+</plist>
