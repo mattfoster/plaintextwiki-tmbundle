@@ -2,6 +2,9 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>comment</key>
+	<string>TODO: Get nesting to work correctly. 
+	Currently, the links are only picked up outside of paragraphs.</string>
 	<key>fileTypes</key>
 	<array>
 		<string>txt</string>
@@ -17,24 +20,33 @@
 	<key>patterns</key>
 	<array>
 		<dict>
+			<key>include</key>
+			<string>#delimited</string>
+		</dict>
+		<dict>
+			<key>include</key>
+			<string>#camelcase</string>
+		</dict>
+	</array>
+	<key>repository</key>
+	<dict>
+		<key>camelcase</key>
+		<dict>
 			<key>match</key>
 			<string>[A-Z][a-z]+([A-Z][a-z]*)+</string>
 			<key>name</key>
 			<string>markup.other.pagename.camelcase</string>
 		</dict>
+		<key>delimited</key>
 		<dict>
-			<key>captures</key>
-			<dict>
-				<key>1</key>
-				<dict>
-					<key>name</key>
-					<string>markup.other.pagename.delimited</string>
-				</dict>
-			</dict>
-			<key>match</key>
-			<string>\[\[(.+)\]\]</string>
+			<key>begin</key>
+			<string>\[\[</string>
+			<key>contentName</key>
+			<string>markup.other.pagename.delimited</string>
+			<key>end</key>
+			<string>\]\]</string>
 		</dict>
-	</array>
+	</dict>
 	<key>scopeName</key>
 	<string>text.html.markdown.wiki</string>
 	<key>uuid</key>
