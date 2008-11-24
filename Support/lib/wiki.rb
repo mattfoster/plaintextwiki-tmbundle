@@ -81,7 +81,7 @@ class PlainTextWiki
         export_ext = ".html"
 
         # dialogs
-        cocoadialog = "#{ENV['TM_SUPPORT_PATH']}/bin/CocoaDialog.app/Contents/MacOS/CocoaDialog"
+        cocoadialog = "'#{ENV['TM_SUPPORT_PATH']}/bin/CocoaDialog.app/Contents/MacOS/CocoaDialog'"
         export_dir_dialog = %Q[#{cocoadialog} fileselect --text "Choose a directory for wiki export" --select-only-directories]
         replace_dialog = %Q[#{cocoadialog} msgbox --text "Export will replace files" --icon "x" --informative-text "There are files in the way in the export directory. They will be lost if you continue." --button1 "Cancel Export" --button2 "Replace All"]
 
@@ -162,7 +162,7 @@ class PlainTextWiki
         # pagenames. Each is treated differently
         s.gsub(
             / (<a .+?<\/a>) # 1, HTML capture
-            | ((http:\/\/.+?)(\s|$)) # 2, 3, 4 http construct
+            | ((http:\/\/.+?)(\s$)) # 2, 3, 4 http construct
             | (\[\[(.+?)\]\]) # 5, 6, delimited capture
             | (\b([A-Z][a-z]+([A-Z][a-z]*)+)\b) # 7 camelcase
             /x ) { |m|
