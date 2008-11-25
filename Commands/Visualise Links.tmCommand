@@ -35,13 +35,15 @@ def print_link_lines(lines, out=None):
     for line in lines:
         dlm = delim.search(line)
         if dlm is not None:
-            out.write('g.add_edge("%s", "%s")\n' % (name, dlm.group(1)))
+            out.write('    g.add_edge("%s", "%s")\n' % (name, dlm.group(1)))
         else:
             cam = camel.search(line)
             if cam is not None:
-                out.write('g.add_edge("%s", "%s")\n' % (name, cam.group(0)))
+                out.write('    g.add_edge("%s", "%s")\n' % (name, cam.group(0)))
 
 header = """
+speed(50)
+
 # Import the library
 try:
     # This is the statement you normally use.
@@ -55,20 +57,28 @@ except ImportError:
 
 size(1024, 768)
 
-g = graph.create(iterations=1000, distance=1.5)
+
+def setup():
+    global g
+    g = graph.create(iterations=1000, distance=1.4)
+    global frame 
+    frame = 1
+    
+def draw():
+    global g
 """
 
 footer = """
-# Calculate a good layout.
-g.solve()
+    if not g.done:
+        g.update(iterations=50)
+    
+    global frame
+    if frame == 1:
+        g.styles.apply()
+        frame += 1
 
-# Apply default rules for node colors and size,
-# for example, important nodes become blue.
-g.styles.apply()
-
-# Draw the graph, indicating the direction of each relation
-# and the two nodes that get the most traffic.
-g.draw(directed=True)
+    
+    g.draw(directed=True, weighted=True)
 """
 
 wiki_dir = os.environ.get('TM_PROJECT_DIRECTORY')
