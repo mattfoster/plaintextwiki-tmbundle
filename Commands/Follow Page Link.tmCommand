@@ -18,7 +18,7 @@ PlainTextWiki.new(ENV['TM_DIRECTORY']).follow_link
 	<key>output</key>
 	<string>discard</string>
 	<key>scope</key>
-	<string>markup.other.pagename</string>
+	<string>meta.link.wiki</string>
 	<key>tabTrigger</key>
 	<string>*</string>
 	<key>uuid</key>
