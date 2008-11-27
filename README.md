@@ -56,14 +56,20 @@ Please let me know about any bugs. Patches are welcome!
 
 Issues:
 
-* The text.html.markdown language grammar, and grammar to underline http-style 
-  URLs, should be included
 * Bundle needs to adhere to http://macromates.com/wiki/Bundles/StyleGuide
 * Grammar binds to a number of file extensions, but exports only '.txt'
 
 
 Changes
 -------
+
+2008-11-*:
+
+* Updated footer
+* merged markdown grammar
+* added nodebox visualisation script
+* Various changes to ruby scripts
+
 
 2007-06-10:
 
