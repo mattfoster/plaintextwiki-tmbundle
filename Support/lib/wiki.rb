@@ -112,7 +112,8 @@ class PlainTextWiki
         	File.open("#{export_dir}/#{p}#{export_ext}", 'w') { |fh|
         		fh.puts(wiki_header % p)
         		fh.puts(html)
-        		fh.puts(wiki_footer)
+        		fh.puts(wiki_footer % [Time.now.gmtime, 
+        		  ENV['TM_FULLNAME'] || ENV['USER']])
         	}
         end
 
