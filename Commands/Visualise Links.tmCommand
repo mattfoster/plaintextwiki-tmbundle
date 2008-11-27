@@ -76,9 +76,12 @@ footer = """
     if frame == 1:
         g.styles.apply()
         frame += 1
-
     
     g.draw(directed=True, weighted=True)
+
+    
+def stop():    
+    canvas.save('wikimap.png')
 """
 
 wiki_dir = os.environ.get('TM_PROJECT_DIRECTORY')
