@@ -64,7 +64,9 @@ class PlainTextWiki
     end
     
     def linked_page_list
-        pages.map { |p| p.include?(" ") ? "* [[#{p}]]" : "* #{p}" }.join("\n")
+        # This is not really good enough. It should wrap in [[ ]] if not camelcase 
+        # pages.map { |p| p.include?(" ") ? "* [[#{p}]]" : "* #{p}" }.join("\n")
+        pages.map { |p| "* [[#{p}]]" }.join("\n")
     end
     
     def export_as_html
