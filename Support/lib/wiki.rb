@@ -69,7 +69,7 @@ class PlainTextWiki
         pages.map { |p| "* [[#{p}]]" }.join("\n")
     end
     
-    def export_as_html
+    def export_as_html(export_dir='')
         case EXPORT_FORMAT
           when "markdown"
             require "#{ENV['TM_SUPPORT_PATH']}/lib/bluecloth.rb"
@@ -81,30 +81,32 @@ class PlainTextWiki
         end
         
         export_ext = ".html"
+        
+        if export_dir.empty?
+          # dialogs
+          cocoadialog = "'#{ENV['TM_SUPPORT_PATH']}/bin/CocoaDialog.app/Contents/MacOS/CocoaDialog'"
+          export_dir_dialog = %Q[#{cocoadialog} fileselect --text "Choose a directory for wiki export" --select-only-directories]
+          replace_dialog = %Q[#{cocoadialog} msgbox --text "Export will replace files" --icon "x" --informative-text "There are files in the way in the export directory. They will be lost if you continue." --button1 "Cancel Export" --button2 "Replace All"]
 
-        # dialogs
-        cocoadialog = "'#{ENV['TM_SUPPORT_PATH']}/bin/CocoaDialog.app/Contents/MacOS/CocoaDialog'"
-        export_dir_dialog = %Q[#{cocoadialog} fileselect --text "Choose a directory for wiki export" --select-only-directories]
-        replace_dialog = %Q[#{cocoadialog} msgbox --text "Export will replace files" --icon "x" --informative-text "There are files in the way in the export directory. They will be lost if you continue." --button1 "Cancel Export" --button2 "Replace All"]
-
-        # Ask the user for an export directory, exiting if cancelled
-        export_dir = `#{export_dir_dialog}`.strip
-        exit if export_dir.empty?
-
-        # Make sure there are no files in the way
-        obstructing = (pages + ["#{export_dir}/wiki-styles.css"]).select { |p|
-            File.file?("#{export_dir}/#{p}#{export_ext}")
-        }
+          # Ask the user for an export directory, exiting if cancelled
+          export_dir = `#{export_dir_dialog}`.strip
+          exit if export_dir.empty?
+        
+          # Make sure there are no files in the way
+          obstructing = (pages + ["#{export_dir}/wiki-styles.css"]).select { |p|
+              File.file?("#{export_dir}/#{p}#{export_ext}")
+          }
                 
-        unless obstructing.empty?
-            res = `#{replace_dialog}`.strip
-            unless res == '2'
-                puts res
-                puts "Cancelled Export Wiki as HTML"
-                exit 206
-            end
+          unless obstructing.empty?
+              res = `#{replace_dialog}`.strip
+              unless res == '2'
+                  puts res
+                  puts "Cancelled Export Wiki as HTML"
+                  exit 206
+              end
+          end
         end
-
+        
         # For each file, HTML-ify the links, convert to HTML using Markdown, and save
         pages.each do |p|
         	html = transform.call(with_html_links(open("#{dir}/#{p}#{EXT}", 'r').read))
