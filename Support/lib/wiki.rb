@@ -29,14 +29,14 @@ class PlainTextWiki
     end
     
     def follow_link
-       if ENV['TM_SCOPE'].include?('markup.other.pagename.delimited')
+       # if ENV['TM_SCOPE'].include?('markup.other.pagename.delimited')
+       if ENV['TM_SCOPE'].include?('meta.link.wiki.pagename.delimited')
         	idx = ENV['TM_LINE_INDEX'].to_i
         	pagename = (((ENV['TM_CURRENT_LINE'][0..idx-1] || "").reverse)[/^[^\[]*/] || "").reverse + ENV['TM_CURRENT_LINE'][idx..-1][/^[^\]]*/]
         	pagename.tr("[]", "").capitalize!
         else
         	pagename = ENV['TM_CURRENT_WORD']
         end
-        
         go_to pagename
     end
 
@@ -53,14 +53,16 @@ class PlainTextWiki
                 # otherwise it won't open properly in the project window
                 pagename = pages.select { |p| p.downcase == pagename.downcase }.first
             else
-                FileUtils.touch("#{dir}/#{pagename}#{EXT}")
+                fn = "#{dir}/#{pagename}#{EXT}"
+                dirname = File.dirname(fn)
+                FileUtils.mkdir_p(dirname)
+                FileUtils.touch(fn)
                 # switch away from TextMate and back to refresh the project drawer
         	    `osascript -e 'tell application "Dock" to activate'; osascript -e 'tell application "TextMate" to activate'`
             end
         end
-
         fn = "#{dir}/#{pagename}#{EXT}"
-        `open "txmt://open/?url=file://#{URI.escape(fn, Regexp.new("[^#{URI::PATTERN::UNRESERVED}]"))}"`    
+        `open "txmt://open/?url=file://#{URI.escape(fn, Regexp.new("[^#{URI::PATTERN::UNRESERVED}]"))}"`
     end
     
     def linked_page_list
@@ -209,5 +211,4 @@ class PlainTextWiki
         # Select the index page
         wiki.go_to_index_page
     end
-
 end
