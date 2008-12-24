@@ -22,7 +22,7 @@ class PlainTextWiki
         unless dir
     	    puts "Save this file first."
     	    exit 206
-    	end
+    	  end
         
         @dir = dir
         @pages = nil
@@ -138,15 +138,22 @@ class PlainTextWiki
     
     def pages
         @pages ||= load_pages
-        @pages
     end
     
-    def load_pages
-        all_files = Dir.entries(dir)
-        all_files.reject! { |fn| File.directory?("#{dir}/#{fn}") }
-        all_files.reject! { |fn| File.extname(fn) != EXT }
-        all_files.map! { |fn| fn[0..(fn.length-File.extname(fn).length-1)] }
-        all_files.sort
+    def load_pages(path = nil)
+      path ||= dir
+      files = Dir.entries(path).reject {|fn| fn[0, 1] == '.'}
+      files.inject([]) do |result, fn|
+        if File.directory?("#{path}/#{fn}")
+          result + load_pages("#{path}/#{fn}").map {|pagename| "#{fn}/#{pagename}"}
+        elsif File.extname(fn) == EXT
+          result + [get_pagename(fn)]
+        end
+      end.sort_by {|fn| fn.downcase}
+    end
+    
+    def get_pagename(fn)
+      fn[0..(fn.length-File.extname(fn).length-1)]
     end
     
     def wiki_header
