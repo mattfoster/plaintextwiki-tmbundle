@@ -7,7 +7,7 @@
 	<key>command</key>
 	<string>#!/usr/bin/env ruby
 require "#{ENV['TM_BUNDLE_SUPPORT']}/lib/wiki.rb"
-PlainTextWiki.new(ENV['TM_DIRECTORY']).go_to_index_page
+PlainTextWiki.new(ENV['TM_PROJECT_DIRECTORY']).go_to_index_page
 </string>
 	<key>input</key>
 	<string>none</string>

@@ -29,7 +29,6 @@ class PlainTextWiki
     end
     
     def follow_link
-       # if ENV['TM_SCOPE'].include?('markup.other.pagename.delimited')
        if ENV['TM_SCOPE'].include?('meta.link.wiki.pagename.delimited')
         	idx = ENV['TM_LINE_INDEX'].to_i
         	pagename = (((ENV['TM_CURRENT_LINE'][0..idx-1] || "").reverse)[/^[^\[]*/] || "").reverse + ENV['TM_CURRENT_LINE'][idx..-1][/^[^\]]*/]

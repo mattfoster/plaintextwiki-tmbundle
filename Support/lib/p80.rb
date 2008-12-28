@@ -1,8 +1,10 @@
 module Kernel
   def p80(*args)
-    puts '*' * 80
-    args.each {|arg| p arg}
-    yield if block_given?
-    puts '*' * 80
+    File.open("/tmp/wiki.log", "w") do |f|
+      f.puts '*' * 80
+      args.each {|arg| f.puts arg}
+      yield(f) if block_given?
+      f.puts '*' * 80
+    end
   end
 end
