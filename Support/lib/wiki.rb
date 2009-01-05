@@ -2,7 +2,6 @@
 #
 # $Revision: 18 $
 # $LastChangedDate: 2007-06-10 21:15:43 +0100 (Sun, 10 Jun 2007) $
-
 require 'fileutils'
 require 'uri'
 
@@ -20,9 +19,9 @@ class PlainTextWiki
         # directory will be set), but it's best to double check given the
         # failure mode
         unless dir
-    	    puts "Save this file first."
-    	    exit 206
-    	  end
+          puts "Save this file first."
+          exit 206
+        end
         
         @dir = dir
         @pages = nil
@@ -30,11 +29,11 @@ class PlainTextWiki
     
     def follow_link
        if ENV['TM_SCOPE'].include?('meta.link.wiki.pagename.delimited')
-        	idx = ENV['TM_LINE_INDEX'].to_i
-        	pagename = (((ENV['TM_CURRENT_LINE'][0..idx-1] || "").reverse)[/^[^\[]*/] || "").reverse + ENV['TM_CURRENT_LINE'][idx..-1][/^[^\]]*/]
-        	pagename.tr("[]", "").capitalize!
+          idx = ENV['TM_LINE_INDEX'].to_i
+          pagename = (((ENV['TM_CURRENT_LINE'][0..idx-1] || "").reverse)[/^[^\[]*/] || "").reverse + ENV['TM_CURRENT_LINE'][idx..-1][/^[^\]]*/]
+          pagename.tr("[]", "").capitalize!
         else
-        	pagename = ENV['TM_CURRENT_WORD']
+          pagename = ENV['TM_CURRENT_WORD']
         end
         go_to pagename
     end
@@ -57,7 +56,7 @@ class PlainTextWiki
                 FileUtils.mkdir_p(dirname)
                 FileUtils.touch(fn)
                 # switch away from TextMate and back to refresh the project drawer
-        	    `osascript -e 'tell application "Dock" to activate'; osascript -e 'tell application "TextMate" to activate'`
+              `osascript -e 'tell application "Dock" to activate'; osascript -e 'tell application "TextMate" to activate'`
             end
         end
         fn = "#{dir}/#{pagename}#{EXT}"
@@ -110,14 +109,14 @@ class PlainTextWiki
         
         # For each file, HTML-ify the links, convert to HTML using Markdown, and save
         pages.each do |p|
-        	html = transform.call(with_html_links(open("#{dir}/#{p}#{EXT}", 'r').read))
+          html = transform.call(with_html_links(open("#{dir}/#{p}#{EXT}", 'r').read))
 
-        	File.open("#{export_dir}/#{p}#{export_ext}", 'w') { |fh|
-        		fh.puts(wiki_header % p)
-        		fh.puts(html)
-        		fh.puts(wiki_footer % [Time.now.gmtime, 
-        		  ENV['TM_FULLNAME'] || ENV['USER']])
-        	}
+          File.open("#{export_dir}/#{p}#{export_ext}", 'w') { |fh|
+            fh.puts(wiki_header % p)
+            fh.puts(html)
+            fh.puts(wiki_footer % [Time.now.gmtime, 
+              ENV['TM_FULLNAME'] || ENV['USER']])
+          }
         end
 
         # Copy the stylesheet over
@@ -147,6 +146,8 @@ class PlainTextWiki
           result + load_pages("#{path}/#{fn}").map {|pagename| "#{fn}/#{pagename}"}
         elsif File.extname(fn) == EXT
           result + [get_pagename(fn)]
+        else
+          result
         end
       end.sort_by {|fn| fn.downcase}
     end
@@ -203,8 +204,8 @@ class PlainTextWiki
 
         # Exit if IndexPage.txt already exists
         if File.file?("#{dir}/IndexPage.txt")
-        	puts "IndexPage.txt already exists here"
-        	exit 206
+          puts "IndexPage.txt already exists here"
+          exit 206
         end
 
         # Create and populate the index page by copying it from templates
