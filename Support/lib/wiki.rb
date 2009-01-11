@@ -1,7 +1,4 @@
 #!/usr/bin/env ruby
-#
-# $Revision: 18 $
-# $LastChangedDate: 2007-06-10 21:15:43 +0100 (Sun, 10 Jun 2007) $
 require 'fileutils'
 require 'uri'
 
@@ -43,24 +40,36 @@ class PlainTextWiki
     end
 
     def go_to(pagename)
-        # Touch the file if it doesn't exist
-        unless pages.include? pagename
-            # It may be the file exists but with a different case
-            if pages.map { |p| p.downcase }.include? pagename.downcase
-                # The filename is needed with the correct case because
-                # otherwise it won't open properly in the project window
-                pagename = pages.select { |p| p.downcase == pagename.downcase }.first
-            else
-                fn = "#{dir}/#{pagename}#{EXT}"
-                dirname = File.dirname(fn)
-                FileUtils.mkdir_p(dirname)
-                FileUtils.touch(fn)
-                # switch away from TextMate and back to refresh the project drawer
-              `osascript -e 'tell application "Dock" to activate'; osascript -e 'tell application "TextMate" to activate'`
-            end
+      if is_absolute_link?(pagename)
+        @dir = ENV['TM_PROJECT_DIRECTORY']
+        pagename = pagename.split('/').reject {|name| name.empty?}.join('/')
+      end
+      
+      # Touch the file if it doesn't exist
+      unless pages.include? pagename
+        # It may be the file exists but with a different case
+        if pages.map { |p| p.downcase }.include? pagename.downcase
+          # The filename is needed with the correct case because
+          # otherwise it won't open properly in the project window
+          pagename = pages.select { |p| p.downcase == pagename.downcase }.first
+        else
+          fn = "#{dir}/#{pagename}#{EXT}"
+          dirname = File.dirname(fn)
+          FileUtils.mkdir_p(dirname)
+          FileUtils.touch(fn)
+          refresh
         end
-        fn = "#{dir}/#{pagename}#{EXT}"
-        `open "txmt://open/?url=file://#{URI.escape(fn, Regexp.new("[^#{URI::PATTERN::UNRESERVED}]"))}"`
+      end
+      open("#{dir}/#{pagename}#{EXT}")
+    end
+    
+    # switch away from TextMate and back to refresh the project drawer
+    def refresh
+      `osascript -e 'tell application "Dock" to activate'; osascript -e 'tell application "TextMate" to activate'`
+    end
+    
+    def open(fn)
+      `open "txmt://open/?url=file://#{URI.escape(fn, Regexp.new("[^#{URI::PATTERN::UNRESERVED}]"))}"`
     end
     
     def linked_page_list
@@ -133,9 +142,12 @@ class PlainTextWiki
     # protected instance methods
     
     protected
-    
     def pages
         @pages ||= load_pages
+    end
+    
+    def is_absolute_link?(pagename)
+      pagename[0, 1] == '/'
     end
     
     def load_pages(path = nil)
