@@ -23,7 +23,7 @@ Usage
 * In TextMate, choose 'Create New Wiki' from the menu 
   Bundles > Plain Text Wiki
 * Select your new directory. A file 'IndexPage.txt' will be created and opened
-* Reference new pages using CamelCase or [[like this]]. Page names will appear 
+* Reference new pages using CamelCase or &#0091;&#0091;like this&#0093;&#0093;. Page names will appear 
   underlined
 * To follow a link, put the text cursor over a page name and hit (⌅) Enter (not Return, ↩)
 
@@ -37,9 +37,9 @@ This fork (subdirectories)
 
 This fork adds support to subdirectories to the plaintextwiki bundle, and modifies it in these ways:
 
-* If you reference a page [[like/this]], the page will be in &lt;current_directory&gt;/like/this.txt
+* If you reference a page &#0091;&#0091;like/this&#0093;&#0093;, the page will be in &lt;current-directory&gt;/like/this.txt
 * The `pagelist` command inserts a list of pages under the current directory (the directory of the file where you added the pagelist), recursively (so `pagelist` on IndexPage.txt will insert a list of all the pages in the wiki)
-* [[/abslolute/links]] are supported (for instance: [[/indexpage]] anywhere is a link to the index page)
+* &#0091;&#0091;/abslolute/links&#0093;&#0093; are supported (for instance: &#0091;&#0091;/indexpage&#0093;&#0093; anywhere is a link to the index page)
 * `pagelist` will also only list pages whose names end in '.txt'; That way, you can store other files inside your wiki for reference, but it won't try to open them
 
 
@@ -62,6 +62,8 @@ with the page title on export. Similarly two string markers in `wiki-footer.html
 Bugs and issues
 ---------------
 
+* Export to HTML seems to be broken in this fork
+
 Please repot any bugs. Patches are welcome! Feel free to fork on GitHub [here](http://github.com/mattfoster/plaintextwiki-tmbundle/tree/master "mattfoster's plaintextwiki-tmbundle at master &mdash; GitHub") or [here](http://github.com/malvim/plaintextwiki-tmbundle/tree/master "malvim's plaintextwiki-tmbundle at master &mdash; GitHub").
 
 Issues:
@@ -74,7 +76,7 @@ Changes
 
 2009-01 (Marcelo Alvim)
 
-* Added support for absolute links ([[/indexpage]], for instance)
+* Added support for absolute links (&#0091;&#0091;/indexpage&#0093;&#0093;, for instance)
 
 2008-12 (Marcelo Alvim)
 
