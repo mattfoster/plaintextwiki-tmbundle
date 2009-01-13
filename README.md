@@ -6,15 +6,24 @@ text files as a simple wiki.
 
 The original bundle was by Matt Webb <http://interconnected.org/home>.
 The current version by Matt Foster is available on [GitHub](http://github.com/mattfoster/plaintextwiki-tmbundle/tree/master "mattfoster's plaintextwiki-tmbundle at master &mdash; GitHub").
-
-This forked version, which has (some) support for subdirectories is also available on GitHub [here](http://github.com/malvim/plaintextwiki-tmbundle/tree/master "malvim's plaintextwiki-tmbundle at master &mdash; GitHub").
+Support for subdirectories is now available thanks to Marcelo Alvim [malvim on GitHub](http://github.com/malvim). His fork may be found [here](http://github.com/malvim/plaintextwiki-tmbundle/tree/master "malvim's plaintextwiki-tmbundle at master &mdash; GitHub").
 
 Installation
 ------------
 
 Download and unzip Plain-Text-Wiki.zip. Double-click on the bundle to install 
-(the bundle requires TextMate: <http://macromates.com>).
+(the bundle requires TextMate: <http://macromates.com>). 
 
+Alternatively, use GetBundles. 
+
+First, run:
+
+	cd ~/Library/Application\ Support/TextMate/Bundles
+  	svn co http://svn.textmate.org/trunk/Review/Bundles/GetBundles.tmbundle/
+	osascript -e 'tell app "TextMate" to reload bundles'
+
+to get GetBundles and reload TextMate. Then find `GetBundles` in the `Bundles` menu, and run `Get Bundles`.
+You can then search for PlainTextWiki, and hit install to grab and install it.
 
 Usage
 -----
@@ -32,10 +41,10 @@ Return to the index page at any time: Type ⌃⇧I (shift+ctrl+i)
 Insert a list of pages by typing `pagelist` and hitting tab. It's a good idea to do this in the index page, and update it regularly.
 
 
-This fork (subdirectories)
---------------------------
+Subdirectories
+--------------
 
-This fork adds support to subdirectories to the plaintextwiki bundle, and modifies it in these ways:
+Malvim added support for subdirectories to the plaintextwiki bundle, by modifying it in the following ways:
 
 * If you reference a page &#0091;&#0091;like/this&#0093;&#0093;, the page will be in &lt;current-directory&gt;/like/this.txt
 * The `pagelist` command inserts a list of pages under the current directory (the directory of the file where you added the pagelist), recursively (so `pagelist` on IndexPage.txt will insert a list of all the pages in the wiki)
