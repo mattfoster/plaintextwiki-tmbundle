@@ -60,7 +60,7 @@ class PlainTextWiki
           refresh
         end
       end
-      open("#{dir}/#{pagename}#{EXT}")
+      open_in_tm("#{dir}/#{pagename}#{EXT}")
     end
     
     # switch away from TextMate and back to refresh the project drawer
@@ -68,7 +68,7 @@ class PlainTextWiki
       `osascript -e 'tell application "Dock" to activate'; osascript -e 'tell application "TextMate" to activate'`
     end
     
-    def open(fn)
+    def open_in_tm(fn)
       `open "txmt://open/?url=file://#{URI.escape(fn, Regexp.new("[^#{URI::PATTERN::UNRESERVED}]"))}"`
     end
     
@@ -119,7 +119,7 @@ class PlainTextWiki
         # For each file, HTML-ify the links, convert to HTML using Markdown, and save
         pages.each do |p|
           html = transform.call(with_html_links(open("#{dir}/#{p}#{EXT}", 'r').read))
-
+          
           File.open("#{export_dir}/#{p}#{export_ext}", 'w') { |fh|
             fh.puts(wiki_header % p)
             fh.puts(html)
