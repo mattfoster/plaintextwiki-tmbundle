@@ -119,8 +119,9 @@ class PlainTextWiki
         # For each file, HTML-ify the links, convert to HTML using Markdown, and save
         pages.each do |p|
           html = transform.call(with_html_links(open("#{dir}/#{p}#{EXT}", 'r').read))
-          
-          File.open("#{export_dir}/#{p}#{export_ext}", 'w') { |fh|
+          fname = "#{export_dir}/#{p}#{export_ext}"
+          FileUtils.mkdir_p(File.dirname(fname))
+          File.open(fname, 'w') { |fh|
             fh.puts(wiki_header % p)
             fh.puts(html)
             fh.puts(wiki_footer % [Time.now.gmtime, 
