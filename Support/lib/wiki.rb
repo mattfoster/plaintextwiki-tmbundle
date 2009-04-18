@@ -118,14 +118,13 @@ class PlainTextWiki
         
         # For each file, HTML-ify the links, convert to HTML using Markdown, and save
         pages.each do |p|
-          html = transform.call(with_html_links(open("#{dir}/#{p}#{EXT}", 'r').read))
+          html = transform.call(with_html_links("#{dir}/#{p}#{EXT}", export_dir))
           fname = "#{export_dir}/#{p}#{export_ext}"
           FileUtils.mkdir_p(File.dirname(fname))
           File.open(fname, 'w') { |fh|
-            fh.puts(wiki_header % p)
+            fh.puts(wiki_header % [p, export_dir])
             fh.puts(html)
-            fh.puts(wiki_footer % [Time.now.gmtime, 
-              ENV['TM_FULLNAME'] || ENV['USER']])
+            fh.puts(wiki_footer % [export_dir, Time.now.gmtime, ENV['TM_FULLNAME'] || ENV['USER']])
           }
         end
 
@@ -141,7 +140,6 @@ class PlainTextWiki
     end
 
     # protected instance methods
-    
     protected
     def pages
         @pages ||= load_pages
@@ -184,27 +182,30 @@ class PlainTextWiki
         "#{d}/wiki-styles.css"
     end
  
-    def with_html_links(s)
-        # This match recognises HTML links, and delimited then camelcase
-        # pagenames. Each is treated differently
-        s.gsub(
+    def with_html_links(filename, export_dir)
+        # This match recognises HTML links, and delimited then camelcase pagenames. Each is treated differently
+        open(filename, 'r').read.gsub(
             / (<a .+?<\/a>) # 1, HTML capture
             | ((http:\/\/.+?)(\s$)) # 2, 3, 4 http construct
             | (\[\[(.+?)\]\]) # 5, 6, delimited capture
             | (\b([A-Z][a-z]+([A-Z][a-z]*)+)\b) # 7 camelcase
-            /x ) { |m|
+            /x ) do |m|
             if $1
                 $1
             elsif $3
                 %Q[<a href="#{URI.escape($3)}">#{URI.escape($3)}</a>#{$4}]
             else
-                pagename = $6 ? $6.tr("[]", "").capitalize : $7
+                pagename = $6 ? $6.tr("[]", "") : $7
                 if (!pages.include?(pagename)) and (pages.map { |p| p.downcase }.include? pagename.downcase)
                     pagename = pages.select { |p| p.downcase == pagename.downcase }.first
-                end 
-                %Q[<a href="#{pagename}.html">#{pagename}</a>]
+                end
+                %Q[<a href="#{export_dir}#{link(pagename, filename)}.html">#{pagename}</a>]
             end
-        }
+        end
+    end
+
+    def link(pagename, filename)
+      is_absolute_link?(pagename) ? pagename : "#{File.dirname(filename).gsub(dir, '')}/#{pagename}"
     end
 
     # public class methods
