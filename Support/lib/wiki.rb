@@ -33,34 +33,27 @@ class PlainTextWiki
         else
           pagename = ENV['TM_CURRENT_WORD']
         end
-        go_to pagename
+        go_to(pagename)
     end
 
     def go_to_index_page
-        go_to "IndexPage"
+        go_to("IndexPage")
     end
 
     def go_to(pagename)
-      if is_absolute_link?(pagename)
-        @dir = ENV['TM_PROJECT_DIRECTORY']
-        pagename = pagename.split('/').reject {|name| name.empty?}.join('/')
-      end
+      @dir = ENV['TM_PROJECT_DIRECTORY'] if is_absolute_link?(pagename)
+      pagename = pagename.split('/').reject {|name| name.empty?}.join('/')
+      existent = pages.detect {|p| p.downcase == pagename.downcase} # we need the filename with the correct case
       
       # Touch the file if it doesn't exist
-      unless pages.include? pagename
-        # It may be the file exists but with a different case
-        if pages.map { |p| p.downcase }.include? pagename.downcase
-          # The filename is needed with the correct case because
-          # otherwise it won't open properly in the project window
-          pagename = pages.select { |p| p.downcase == pagename.downcase }.first
-        else
-          fn = "#{dir}/#{pagename}#{EXT}"
-          FileUtils.mkdir_p(dir)
-          FileUtils.touch(fn)
-          refresh
-        end
-      end
-      open_in_tm("#{dir}/#{pagename}#{EXT}")
+      touch_file(dir, pagename) unless existent
+      open_in_tm("#{dir}/#{existent || pagename}#{EXT}")
+    end
+    
+    def touch_file(dir, pagename)
+      FileUtils.mkdir_p(dir)
+      FileUtils.touch("#{dir}/#{pagename}#{EXT}")
+      refresh
     end
     
     # switch away from TextMate and back to refresh the project drawer
@@ -77,16 +70,6 @@ class PlainTextWiki
     end
     
     def export_as_html(export_dir='')
-        case EXPORT_FORMAT
-          when "markdown"
-            require "#{ENV['TM_SUPPORT_PATH']}/lib/bluecloth.rb"
-            require "#{ENV['TM_SUPPORT_PATH']}/lib/rubypants.rb"
-            transform = Proc.new { |s| RubyPants.new(BlueCloth.new(s).to_html).to_html }
-          when "textile"
-            require "#{ENV['TM_SUPPORT_PATH']}/lib/redcloth.rb"
-            transform = Proc.new { |s| RedCloth.new(s).to_html }
-        end
-        
         if export_dir.empty?
           # dialogs
           cocoadialog = "'#{ENV['TM_SUPPORT_PATH']}/bin/CocoaDialog.app/Contents/MacOS/CocoaDialog'"
@@ -135,8 +118,6 @@ class PlainTextWiki
         "#{ENV['TM_BUNDLE_SUPPORT']}/templates"
     end
 
-    # protected instance methods
-    protected
     def pages
         @pages ||= load_pages
     end
@@ -203,10 +184,22 @@ class PlainTextWiki
     def link(pagename, filename)
       is_absolute_link?(pagename) ? pagename : "#{File.dirname(filename).gsub(dir, '')}/#{pagename}"
     end
-
-    # public class methods
-    public
-    def PlainTextWiki.create_new_wiki        
+    
+    def transform
+      return @transform if @transform
+      case EXPORT_FORMAT
+        when "markdown"
+          puts "opsops"
+          require "#{ENV['TM_SUPPORT_PATH']}/lib/bluecloth.rb"
+          require "#{ENV['TM_SUPPORT_PATH']}/lib/rubypants.rb"
+          @transform = Proc.new { |s| RubyPants.new(BlueCloth.new(s).to_html).to_html }
+        when "textile"
+          require "#{ENV['TM_SUPPORT_PATH']}/lib/redcloth.rb"
+          @transform = Proc.new { |s| RedCloth.new(s).to_html }
+      end
+    end
+    
+    def self.create_new_wiki        
         # Ask the user for a new wiki directory, exiting if cancelled
         cocoadialog = "#{ENV['TM_SUPPORT_PATH']}/bin/CocoaDialog.app/Contents/MacOS/CocoaDialog"
         dir = `'#{cocoadialog}' fileselect --text "Choose a directory for your new wiki (IndexPage.txt will be created automatically)" --select-only-directories`.strip
