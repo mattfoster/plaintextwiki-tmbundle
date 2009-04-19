@@ -69,51 +69,47 @@ class PlainTextWiki
         pages.map { |p| "* [[#{p}]]" }.join("\n")
     end
     
-    def export_as_html(export_dir='')
-        if export_dir.empty?
-          # dialogs
-          cocoadialog = "'#{ENV['TM_SUPPORT_PATH']}/bin/CocoaDialog.app/Contents/MacOS/CocoaDialog'"
-          export_dir_dialog = %Q[#{cocoadialog} fileselect --text "Choose a directory for wiki export" --select-only-directories]
-          replace_dialog = %Q[#{cocoadialog} msgbox --text "Export will replace files" --icon "x" --informative-text "There are files in the way in the export directory. They will be lost if you continue." --button1 "Cancel Export" --button2 "Replace All"]
-
-          # Ask the user for an export directory, exiting if cancelled
-          export_dir = `#{export_dir_dialog}`.strip
-          exit if export_dir.empty?
-        
-          # Make sure there are no files in the way
-          obstructing = (pages + ["#{export_dir}/wiki-styles.css"]).select { |p|
-              File.file?("#{export_dir}/#{p}#{EXPORT_EXT}")
-          }
-                
-          unless obstructing.empty?
-              res = `#{replace_dialog}`.strip
-              unless res == '2'
-                  puts res
-                  puts "Cancelled Export Wiki as HTML"
-                  exit 206
-              end
-          end
+    def export_as_html
+      export_dir = ask_for_export_dir
+      
+      # For each file, HTML-ify the links, convert to HTML using Markdown, and save
+      pages.each do |p|
+        html = transform.call(with_html_links("#{dir}/#{p}#{EXT}", export_dir))
+        fname = "#{export_dir}/#{p}#{EXPORT_EXT}"
+        FileUtils.mkdir_p(File.dirname(fname))
+        File.open(fname, 'w') do |f|
+          f.puts(wiki_header % [p, export_dir])
+          f.puts(html)
+          f.puts(wiki_footer % [export_dir, Time.now.gmtime, ENV['TM_FULLNAME'] || ENV['USER']])
         end
-        
-        # For each file, HTML-ify the links, convert to HTML using Markdown, and save
-        pages.each do |p|
-          html = transform.call(with_html_links("#{dir}/#{p}#{EXT}", export_dir))
-          fname = "#{export_dir}/#{p}#{EXPORT_EXT}"
-          FileUtils.mkdir_p(File.dirname(fname))
-          File.open(fname, 'w') { |fh|
-            fh.puts(wiki_header % [p, export_dir])
-            fh.puts(html)
-            fh.puts(wiki_footer % [export_dir, Time.now.gmtime, ENV['TM_FULLNAME'] || ENV['USER']])
-          }
-        end
+      end
 
-        # Copy the stylesheet over
-        FileUtils.copy("#{wiki_styles_path}", "#{export_dir}/wiki-styles.css")
+      # Copy the stylesheet over
+      FileUtils.copy("#{wiki_styles_path}", "#{export_dir}/wiki-styles.css")
 
-        # Open the exported wiki in the default HTML viewer
-        `open #{export_dir}/IndexPage#{EXPORT_EXT}`
+      # Open the exported wiki in the default HTML viewer
+      `open #{export_dir}/IndexPage#{EXPORT_EXT}`
     end
-   
+    
+    def ask_for_export_dir
+      # dialogs
+      cocoadialog = "'#{ENV['TM_SUPPORT_PATH']}/bin/CocoaDialog.app/Contents/MacOS/CocoaDialog'"
+      export_dir_dialog = %Q[#{cocoadialog} fileselect --text "Choose a directory for wiki export" --select-only-directories]
+      replace_dialog = %Q[#{cocoadialog} msgbox --text "Export will replace files" --icon "x" --informative-text "There are files in the way in the export directory. They will be lost if you continue." --button1 "Cancel Export" --button2 "Replace All"]
+
+      # Ask the user for an export directory, exiting if cancelled
+      export_dir = `#{export_dir_dialog}`.strip
+      exit if export_dir.empty?
+  
+      # Make sure there are no files in the way
+      obstructing = (pages + ["#{export_dir}/wiki-styles.css"]).any? {|f| File.file?("#{export_dir}/#{f}#{EXPORT_EXT}") }
+      if obstructing && (`#{replace_dialog}`.to_i != 2)
+        puts "Cancelled Export Wiki as HTML"
+        exit 206
+      end
+      export_dir
+    end
+    
     def templates_dir
         "#{ENV['TM_BUNDLE_SUPPORT']}/templates"
     end
