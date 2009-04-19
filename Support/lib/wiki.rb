@@ -6,6 +6,7 @@ class PlainTextWiki
     # Default extension for page creation
     EXT = ".txt"
     EXPORT_FORMAT = "markdown" # "markdown" and "textile" are recognised
+    EXPORT_EXT = ".html"
     
     # set by the initializer, passed in
     attr_reader :dir
@@ -54,8 +55,7 @@ class PlainTextWiki
           pagename = pages.select { |p| p.downcase == pagename.downcase }.first
         else
           fn = "#{dir}/#{pagename}#{EXT}"
-          dirname = File.dirname(fn)
-          FileUtils.mkdir_p(dirname)
+          FileUtils.mkdir_p(dir)
           FileUtils.touch(fn)
           refresh
         end
@@ -73,8 +73,6 @@ class PlainTextWiki
     end
     
     def linked_page_list
-        # This is not really good enough. It should wrap in [[ ]] if not camelcase 
-        # pages.map { |p| p.include?(" ") ? "* [[#{p}]]" : "* #{p}" }.join("\n")
         pages.map { |p| "* [[#{p}]]" }.join("\n")
     end
     
@@ -89,8 +87,6 @@ class PlainTextWiki
             transform = Proc.new { |s| RedCloth.new(s).to_html }
         end
         
-        export_ext = ".html"
-        
         if export_dir.empty?
           # dialogs
           cocoadialog = "'#{ENV['TM_SUPPORT_PATH']}/bin/CocoaDialog.app/Contents/MacOS/CocoaDialog'"
@@ -103,7 +99,7 @@ class PlainTextWiki
         
           # Make sure there are no files in the way
           obstructing = (pages + ["#{export_dir}/wiki-styles.css"]).select { |p|
-              File.file?("#{export_dir}/#{p}#{export_ext}")
+              File.file?("#{export_dir}/#{p}#{EXPORT_EXT}")
           }
                 
           unless obstructing.empty?
@@ -119,7 +115,7 @@ class PlainTextWiki
         # For each file, HTML-ify the links, convert to HTML using Markdown, and save
         pages.each do |p|
           html = transform.call(with_html_links("#{dir}/#{p}#{EXT}", export_dir))
-          fname = "#{export_dir}/#{p}#{export_ext}"
+          fname = "#{export_dir}/#{p}#{EXPORT_EXT}"
           FileUtils.mkdir_p(File.dirname(fname))
           File.open(fname, 'w') { |fh|
             fh.puts(wiki_header % [p, export_dir])
@@ -132,7 +128,7 @@ class PlainTextWiki
         FileUtils.copy("#{wiki_styles_path}", "#{export_dir}/wiki-styles.css")
 
         # Open the exported wiki in the default HTML viewer
-        `open #{export_dir}/IndexPage#{export_ext}`
+        `open #{export_dir}/IndexPage#{EXPORT_EXT}`
     end
    
     def templates_dir
@@ -199,7 +195,7 @@ class PlainTextWiki
                 if (!pages.include?(pagename)) and (pages.map { |p| p.downcase }.include? pagename.downcase)
                     pagename = pages.select { |p| p.downcase == pagename.downcase }.first
                 end
-                %Q[<a href="#{export_dir}#{link(pagename, filename)}.html">#{pagename}</a>]
+                %Q[<a href="#{export_dir}#{link(pagename, filename)}#{EXPORT_EXT}">#{pagename}</a>]
             end
         end
     end

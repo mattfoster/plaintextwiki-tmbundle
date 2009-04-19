@@ -42,7 +42,7 @@ class PlainTextWikiTest < Test::Unit::TestCase
   def verify_go_to_link(pagename, root_dir)
     PlainTextWiki.const_set('ENV', {'TM_DIRECTORY' => @subdir, 'TM_PROJECT_DIRECTORY' => @dir})
     @wiki = PlainTextWiki.new(@subdir)
-    @wiki.expects(:open).with("#{root_dir}/#{pagename.gsub(/\//, '')}.txt")
+    @wiki.expects(:open_in_tm).with("#{root_dir}/#{pagename.gsub(/\//, '')}.txt")
     @wiki.expects(:refresh)
     @wiki.go_to(pagename)
     FileUtils.rm("#{root_dir}/#{pagename}.txt")
